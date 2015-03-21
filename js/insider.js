@@ -1,8 +1,23 @@
-var _log = function(message) {
+var _log = function(title, message) {
+    if (!message) {
+        message = title;
+        title = null;
+    }
+    
+    if (title) console.log(">>>>>>> " + title);
     console.log(message);
+    if (title) console.log("<<<<<<<");
 }
 
 Insider = {};
+
+Insider.UID = sQuery.cookie('spUID');
+Insider.partner = (typeof PARTNER_NAME != 'undefined')
+    ? PARTNER_NAME                 /* defined in (web/api/frame.php) */
+    : sQuery.cookie('partnerName')  /* try to get partnerName from cookie*/
+;  
+Insider.apiUrl = 'http://'+Insider.partner+'.api.sociaplus.com/';
+Insider.panelUrl = 'http://'+Insider.partner+'.panel.sociaplus.com/';
 
 /**
  * Return TRUE if the given object is an array.
@@ -11,6 +26,59 @@ Insider.isArray = function(object) {
     return Object.prototype.toString.call( object ) === '[object Array]';
 };
 
+Insider.dictionary = (function(){
+    var _category;
+    var _dictionary = {};
+    
+    return {
+        init: function(dictionary) {
+            _dictionary = dictionary;
+        },
+        
+        append: function(category, data) {
+            _log('Insider.Dictionary: category <'+category+'>');
+            _category = category;
+            for(var i in data)
+                _dictionary[i] = data[i];
+        },
+        
+        log: function(){
+            _log('Insider Dictionary <category: '+_category+'>:', _dictionary);
+        },
+        
+        sendRequest: function(string)
+        {
+            //console.log('Dictionary new message:', string);
+            $.ajax({
+                url:Insider.panelUrl+'ajax.php?op=translate',
+                type: 'POST',
+                dataType: 'json',
+                data: {category: _category, message:string},
+                success: function(data){
+                    //console.log(data);
+                }
+            });
+        },
+        
+        t: function(string, params) {
+            params = params || {};
+            var t = _dictionary[string] || null;
+            if (!t) {
+                
+                this.sendRequest(string);
+                t = string;
+            }
+            string = t;
+            for(var p in params)
+                string = string.replace(p, params[p]);
+                
+            return string;
+        }
+    };
+})();
+
+Insider.appendToDic = Insider.dictionary.append;
+var tt = Insider.dictionary.t.bind(Insider.dictionary);
 /**
  * Return 'true' or 'false' debending on the given value
  */
@@ -21,6 +89,7 @@ Insider.boolean = function(value) {
     case 'FALSE':
     case '0':
     case 0:
+    case false:
     case null:
         return false;
         
@@ -125,7 +194,6 @@ Insider.html = function(tag, content, attr) {
         html += ' ' + attr;
     if (content) {
         if (Insider.isArray(content)) {
-            //alert('*** content is array');
             tmp = content;
             content = '';
             for(var i in tmp)
@@ -145,153 +213,3 @@ Insider.html = function(tag, content, attr) {
     return html;
     
 };
-
-Insider.Overlay = function(content) {
-    this.fixed = false;
-    this.width = '600px';
-    this.height = '500px';
-    this.borderRadius = '15px';
-    this.content = content;
-    
-    this._init();
-};
-
-Insider.Overlay.prototype = {
-    constructor: Insider.Overlay,
-    
-    _init : function () {
-        var attr_lay = {
-            display: 'none',
-            position: 'fixed', left: '0px',  top: '0px',
-            width:'100%',  height: this.clientHeight()+'px',
-            'text-align':'center', 'z-index': 1000,
-            'background-color' : '#777', opacity: 0.3
-        };
-        
-        var attr_holder = {
-            display: 'none',
-            left: '0px', top: '0px', width:'100%',
-            'z-index': 1111,
-            height: this.clientHeight()+'px',
-            'position' : this.fixed ? 'fixed' : 'absolute'
-        };
-        
-        var attr_close = {
-            display: 'block',
-            right: '5px', top: '5px',
-            width:'32px',
-            height:'32px',
-            padding: '2px',
-            'font-weight': 'bold',
-            'font-size' : '26px',
-            'background' : 'url(images/widgets/close/close32.png) no-repeat',
-            'z-index': 1111,
-            'position' : 'absolute'
-        };
-        
-        var attr_div = {
-            width:this.width,
-            height:this.height,
-            padding:'15px',
-            margin: '100px auto',
-            background: '#fff',
-             'position' : 'relative',
-            'border-radius': this.borderRadius,
-            'box-shadow' : '#113 0 0 20px',
-        };
-        
-        
-        var html = Insider.html([
-            {
-                tag: 'div',
-                id: 'insider-overlay',
-                style: attr_lay
-            },
-            {
-                tag: 'div',
-                id: 'insider-overlay-holder',
-                style: attr_holder,
-                content: {
-                    tag:'div',
-                    style: attr_div,
-                    content: [
-                        {
-                            tag:'style',
-                            content: '#insider_overlay_close a:hover {color:red;text-decoration:none;} #insider_overlay_close:hover{color:red;background:url("images/widgets/close/close32_h.png")  no-repeat;}'
-                        },
-                        {
-                            id: 'insider_overlay_close',
-                            tag:'div',
-                            style: attr_close,
-                            onclick: "$('#insider-overlay').hide();$('#insider-overlay-holder').hide('slow');",
-                            content: '<a href="#">&#x26CC</a>'
-                        },
-                        this.content
-                    ]
-                }
-            }
-        ]);
-        
-        $(html).appendTo('body');
-    },
-
-    show: function() {
-        $('#insider-overlay').show();
-        //('#insider-overlay-holder').show();
-        $('#insider-overlay-holder').fadeIn(700);
-    },
-
-    hide: function() {
-        $('#insider-overlay').hide();
-        $('#insider-overlay-holder').hide('slow');
-    },
-    
-    clientHeight: function() {
-        return $(document).height();
-        return false
-            || window.innerHeight
-            || document.documentElement.clientHeight
-            || document.body.clientHeight;  
-    },
-    
-    close : function() {
-        //$('#insider-overlay').remove();
-        //$('#insider-overlay-holder').remove();
-    },
-    
-    position : function() {
-        alert('position');
-        
-    }
-};
-
-
-
-
-
-$(document).ready(function(){
-    
-    //var overlay = new Insider.Overlay();
-    //overlay.display();
-    //overlay.close();
-    
-//   
-//   var html, attr = {
-//        id:'myid',
-//        style: {
-//            color: '#335599',
-//            'border' : '1px solid red'
-//        }
-//    };
-//    
-//    html = Insider.html('h2', /*null*/['This is a string'], attr);
-//
-//    //attr.tag = 'h1';
-//    //attr.content = 'This is a super string';
-//    //html = Insider.html(attr);
-//
-//    alert(html);
-//
-//    $('#info_builder .quizizer').html(html);
-//    
-});

@@ -1,0 +1,94 @@
+body {
+    
+}
+
+.upload_widget {
+    /*margin: 10px 0;*/
+    padding: 10px;
+    position: relative;
+    display: block;
+    /*border: 2px solid gray;*/
+    border-radius: 10px;
+}
+.upload_widget h1 {
+    text-align: center;
+    color: rgb(95, 89, 89);
+    margin: 0 0 10px 0;
+    font-size: 35px;
+}
+
+.upload_widget label {
+    color: rgba(0, 0, 0, 0.71);
+    margin-left: 60px;
+}
+
+
+
+
+.upload_widget form {
+    padding: 19px 21px 14px 15px;
+    position: relative;
+    border-radius: 10px;
+}
+
+
+.upload_widget .submit {
+    font-size:16 px;
+    background: linear-gradient(#ffbc00 5% , #ffdd7f 100% );
+    border: 1px solid #e5a900;
+    color: #4E4D4B;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100px;
+    border-radius: 5px;
+    padding: 10px 0;
+    outline: none;
+    margin-left: 15px;
+}
+
+.upload_widget .submit:hover{
+    background: linear-gradient(#ffdd7f 5% , #ffbc00 100% );
+}
+
+.upload_widget .file {
+    color: red;
+    width:400px;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 3px #C3D6F8;
+}
+
+.upload_widget .message {
+    padding: 5px;
+}
+
+.upload_widget .message .error { color: red;padding: 5px;}
+.upload_widget .message .success { color: green;}
+
+.upload_widget .loading {
+    display: none;
+    font-size: 25px;
+}
+    
+
+
+
+#error_message { color: blue; }
+
+
+    
+    
+/*#image_preview {
+    position: absolute;
+    font-size: 30px;
+    top: 100px;
+    left: 100px;
+    width: 250px;
+    height: 230px;
+    text-align: center;
+    line-height: 180px;
+    font-weight: bold;
+    color: #C0C0C0;
+    background-color: #FFFFFF;
+    overflow: auto;
+}*/

@@ -10,8 +10,8 @@
         options : {
             fixed: false,
             width : '600px',
-            height : '500px',
-            borderRadius : '15px'
+            height : '100px',
+            borderRadius : '15px',
         },
         
         _create: function() {
@@ -33,11 +33,12 @@
                 content : ''
             }));
             
+            var x = '<i class="fa fa-times"></i>';//"&times;";//"&#x26CC";
             var $close = $(Insider.html([
                 {
                     tag : 'style',
                     content : [
-                        '#insider_overlay_close {',
+                        '.insider_overlay_close {',
                             'color: #B4B4B9;',
                             'font-size: 25px;',
                             'font-weight: bold;',
@@ -46,7 +47,7 @@
                             'top: 5px;',
                             'right: 5px;',
                         '}\n',
-                        '#insider_overlay_close:hover {',
+                        '.insider_overlay_close:hover {',
                             'color: #a00;',
                             'text-decoration: none;',
                         '}'
@@ -55,7 +56,9 @@
                     tag     : 'a',
                     href    : 'javascript:void(0)',
                     id      :'insider_overlay_close',
-                    content : '&#x26CC',
+                    'name' :'insider_overlay_close',
+                    'class' :'insider_overlay_close',
+                    content : x
                     //onclick : "$('"+this.element.selector+"').overlay('hide')"
                 }
             ]));
@@ -69,10 +72,13 @@
             
             
             var plugin = this;
-            $('#insider_overlay_close').click(function(){
+            $('.insider_overlay_close').click(function(){
                 plugin.hide();
             });
-            //this.show();
+            $(document).keyup(function(e){
+                if (e.keyCode == 27)
+                    this.hide();
+            }.bind(this));
         },
         
         show:function() {
@@ -103,7 +109,7 @@
             return {
                 display: 'none',
                 left: '0px', top: '0px', width:'100%',
-                'z-index': 1111,
+                'z-index': 999999,
                 height: this.clientHeight()+'px',
                 'position' : this.options.fixed ? 'fixed' : 'absolute'
             }
@@ -113,13 +119,14 @@
             return {
                 //top: this.topOffset(),
                 width:this.options.width,
-                'min-height':this.options.height,
+                'min-height':this.options['min-height'] || this.options.height,
                 padding:'15px',
                 margin: '100px auto',
                 background: '#fff',
                  'position' : 'relative',
                 'border-radius': this.options.borderRadius,
                 'box-shadow' : '#113 0 0 20px',
+                'z-index': 999999
             }
         },
     
